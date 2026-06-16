@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Ryan | Finance × AI Data Science</title>
+  <meta name="description" content="Ryan 的個人品牌網站，聚焦 Finance × AI Data Science、選股系統、企業顧問與投資系統建置。" />
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- FontAwesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: "#009FDB",
+            secondary: "#00BDB3",
+            accent: "#FFB800",
+            strongAccent: "#FF4D4F",
+            softbg: "#F2F4F7"
+          },
+          animation: {
+            fadeInUp: "fadeInUp 1s ease forwards",
+            float: "float 6s ease-in-out infinite",
+            pulseSoft: "pulseSoft 3s ease-in-out infinite"
+          },
+          keyframes: {
+            fadeInUp: {
+              "0%": { opacity: 0, transform: "translateY(30px)" },
+              "100%": { opacity: 1, transform: "translateY(0)" }
+            },
+            float: {
+              "0%,100%": { transform: "translateY(0px)" },
+              "50%": { transform: "translateY(-12px)" }
+            },
+            pulseSoft: {
+              "0%,100%": { opacity: 0.6 },
+              "50%": { opacity: 1 }
+            }
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    html { scroll-behavior: smooth; }
+    body {
+      background:
+        radial-gradient(circle at top left, rgba(0,159,219,0.08), transparent 28%),
+        radial-gradient(circle at top right, rgba(0,189,179,0.08), transparent 24%),
+        linear-gradient(180deg, #ffffff 0%, #F2F4F7 100%);
+    }
+
+    .glass {
+      background: rgba(255,255,255,0.72);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255,255,255,0.35);
+      box-shadow: 0 10px 30px rgba(15,23,42,0.05);
+    }
+
+    .glow:hover {
+      box-shadow: 0 0 28px rgba(0,189,179,0.28);
+    }
+
+    .reveal {
+      opacity: 0;
+      transform: translateY(28px);
+      transition: opacity .8s ease, transform .8s ease;
+    }
+
+    .reveal.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .cursor {
+      display: inline-block;
+      width: 10px;
+      margin-left: 2px;
+      animation: blink 1s step-end infinite;
+    }
+
+    @keyframes blink {
+      50% { opacity: 0; }
+    }
+
+    .nav-link {
+      position: relative;
+      transition: color .2s ease;
+    }
+
+    .nav-link::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      bottom: -6px;
+      width: 0%;
+      height: 2px;
+      background: #009FDB;
+      transition: width .25s ease;
+    }
+
+    .nav-link:hover::after,
+    .nav-link.active::after {
+      width: 100%;
+    }
+
+    .card-hover {
+      transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+    }
+
+    .card-hover:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 18px 35px rgba(15,23,42,0.08);
+      border-color: rgba(0,159,219,0.2);
+    }
+  </style>
+</head>
+
+<body class="text-gray-800 overflow-x-hidden">
+
+  <!-- Canvas Background -->
+  <canvas id="bgCanvas" class="fixed top-0 left-0 w-full h-full -z-10"></canvas>
+
+  <!-- NAVBAR -->
+  <header class="fixed top-0 w-full z-50 glass">
+    <div class="max-w-7xl mx-auto flex justify-between items-center px-4 py-4">
+      <a href="#home" class="font-bold text-primary text-lg tracking-wide">
+        Ryan | Finance × AI
+      </a>
+
+      <nav class="hidden md:flex items-center space-x-7 text-sm font-medium">
+        <a class="nav-link" href="#home">首頁</a>
+        <a class="nav-link" href="#about">關於我</a>
+        <a class="nav-link" href="#services">服務</a>
+        <a class="nav-link" href="#portfolio">案例</a>
+        <a class="nav-link" href="#blog">部落格</a>
+        <a class="nav-link" href="#contact">聯絡</a>
+      </nav>
+
+      <button id="menuBtn" class="md:hidden w-10 h-10 rounded-full glass flex items-center justify-center" aria-label="開啟選單">
+        <i class="fa fa-bars text-lg"></i>
+      </button>
+    </div>
+
+    <div id="mobileMenu" class="hidden md:hidden flex flex-col px-4 pb-4 space-y-3 text-sm font-medium">
+      <a class="px-3 py-2 rounded-lg hover:bg-slate-100" href="#home">首頁</a>
+      <a class="px-3 py-2 rounded-lg hover:bg-slate-100" href="#about">關於我</a>
+      <a class="px-3 py-2 rounded-lg hover:bg-slate-100" href="#services">服務</a>
+      <a class="px-3 py-2 rounded-lg hover:bg-slate-100" href="#portfolio">案例</a>
+      <a class="px-3 py-2 rounded-lg hover:bg-slate-100" href="#blog">部落格</a>
+      <a class="px-3 py-2 rounded-lg hover:bg-slate-100" href="#contact">聯絡</a>
+    </div>
+  </header>
+
+  <!-- HERO -->
+  <section id="home" class="min-h-screen flex items-center justify-center px-6 pt-28">
+    <div class="max-w-4xl mx-auto text-center">
+      <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full glass text-sm text-slate-600 mb-8 animate-pulseSoft">
+        <span class="w-2.5 h-2.5 rounded-full bg-accent"></span>
+        Finance × AI × Data Science
+      </div>
+
+      <h1 class="text-3xl sm:text-4xl md:text-6xl font-black tracking-tight leading-tight text-slate-900">
+        <span id="typewriter"></span><span class="cursor text-primary">|</span>
+      </h1>
+
+      <p class="mt-6 text-base md:text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed">
+        跨越金融與資料科學的鴻溝，用智慧數據驅動精準決策，讓投資流程、企業分析與 AI 導入不再是碎片化拼圖。
+      </p>
+
+      <div class="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
+        <button id="ctaBtn"
+          class="px-7 py-3 rounded-xl glass border border-primary text-primary font-semibold transition glow hover:bg-primary hover:text-white">
+          Start Connection
+        </button>
+
+        <a href="#services"
+          class="px-7 py-3 rounded-xl border border-slate-200 bg-white/70 text-slate-700 font-semibold hover:bg-slate-50 transition">
+          查看服務內容
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ABOUT -->
+  <section id="about" class="py-24 px-6 max-w-6xl mx-auto reveal">
+    <h2 class="text-2xl md:text-3xl font-bold text-primary mb-8">關於 Ryan</h2>
+
+    <div class="grid md:grid-cols-2 gap-10 items-center">
+      <div class="h-72 rounded-3xl glass animate-float flex items-center justify-center border border-white/50">
+        <div class="text-center px-6">
+          <div class="text-5xl mb-3">📊</div>
+          <div class="text-sm text-slate-500">金融 × AI 的決策引擎</div>
+        </div>
+      </div>
+
+      <div class="space-y-4 text-gray-700 leading-relaxed">
+        <p>我是 Ryan，台灣證券投資研究有限公司創辦人，擁有 12+ 年金融與資料科學經驗。</p>
+        <p>專注於資本市場研究、投資決策模型、AI 數據應用與企業內部知識系統建置。</p>
+        <p>我相信，金融決策的未來不是更吵的資訊流，而是更清楚的模型、流程與判斷框架。</p>
+
+        <div class="flex flex-wrap gap-2 pt-4">
+          <span class="px-3 py-1.5 rounded-full glass text-sm">CSIA 證券分析師</span>
+          <span class="px-3 py-1.5 rounded-full glass text-sm">投信投顧</span>
+          <span class="px-3 py-1.5 rounded-full glass text-sm">信託高級業務員</span>
+          <span class="px-3 py-1.5 rounded-full glass text-sm">臺科大講師</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SERVICES -->
+  <section id="services" class="py-24 px-6 bg-softbg reveal">
+    <div class="max-w-6xl mx-auto">
+      <h2 class="text-2xl md:text-3xl font-bold text-primary mb-4">AI 解決方案</h2>
+      <p class="text-slate-600 mb-10 max-w-2xl">把技術變成可交付的商業成果，把想法變成可複製的系統。</p>
+
+      <div class="grid md:grid-cols-3 gap-6">
+        <div class="glass p-6 rounded-3xl card-hover">
+          <div class="w-12 h-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center mb-4">
+            <i class="fa-solid fa-chart-line"></i>
+          </div>
+          <h3 class="font-bold mb-3 text-lg">AI 技術服務</h3>
+          <p class="text-sm text-gray-600 leading-relaxed">選股系統、報表分析、預測模型、自動化流程與資料管線設計。</p>
+        </div>
+
+        <div class="glass p-6 rounded-3xl card-hover">
+          <div class="w-12 h-12 rounded-2xl bg-secondary/10 text-secondary flex items-center justify-center mb-4">
+            <i class="fa-solid fa-briefcase"></i>
+          </div>
+          <h3 class="font-bold mb-3 text-lg">企業顧問</h3>
+          <p class="text-sm text-gray-600 leading-relaxed">AI 導入、知識庫建置、團隊流程優化、數據資產化與內訓規劃。</p>
+        </div>
+
+        <div class="glass p-6 rounded-3xl card-hover">
+          <div class="w-12 h-12 rounded-2xl bg-accent/10 text-accent flex items-center justify-center mb-4">
+            <i class="fa-solid fa-sitemap"></i>
+          </div>
+          <h3 class="font-bold mb-3 text-lg">投資系統</h3>
+          <p class="text-sm text-gray-600 leading-relaxed">資料到策略、訊號到決策，打造可追蹤、可回測、可維護的流程。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PORTFOLIO -->
+  <section id="portfolio" class="py-24 px-6 max-w-6xl mx-auto reveal">
+    <h2 class="text-2xl md:text-3xl font-bold text-primary mb-4">案例展示</h2>
+    <p class="text-slate-600 mb-10 max-w-2xl">讓抽象能力落在具體場景中，這樣品牌才會真的站得住。</p>
+
+    <div class="grid md:grid-cols-3 gap-6">
+      <div class="glass p-6 rounded-3xl card-hover">
+        <div class="text-sm text-slate-500 mb-2">Fintech</div>
+        <div class="font-semibold text-lg">金融資產配置系統</div>
+        <div class="mt-3 text-sm text-slate-600">資產、風控、訊號整合成一套可執行的決策工作流。</div>
+      </div>
+
+      <div class="glass p-6 rounded-3xl card-hover">
+        <div class="text-sm text-slate-500 mb-2">Supply Chain</div>
+        <div class="font-semibold text-lg">化工供應鏈預測</div>
+        <div class="mt-3 text-sm text-slate-600">把產業節奏、庫存與需求波動做成可讀的預測介面。</div>
+      </div>
+
+      <div class="glass p-6 rounded-3xl card-hover">
+        <div class="text-sm text-slate-500 mb-2">Healthcare</div>
+        <div class="font-semibold text-lg">醫療數據架構優化</div>
+        <div class="mt-3 text-sm text-slate-600">提升資料整合效率，讓後續分析與應用更乾淨流暢。</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BLOG -->
+  <section id="blog" class="py-24 px-6 bg-softbg reveal">
+    <div class="max-w-6xl mx-auto">
+      <h2 class="text-2xl md:text-3xl font-bold text-primary mb-4">技術觀點</h2>
+      <p class="text-slate-600 mb-10 max-w-2xl">這裡放方法論，不只是資訊。品牌會因此長出骨架。</p>
+
+      <div class="grid md:grid-cols-3 gap-6">
+        <div class="glass p-6 rounded-3xl card-hover">
+          <div class="text-sm text-slate-500 mb-2">Insight</div>
+          <div class="font-semibold text-lg">AI × Fintech 趨勢</div>
+          <div class="mt-3 text-sm text-slate-600">從工具走向流程，從效率走向決策品質。</div>
+        </div>
+
+        <div class="glass p-6 rounded-3xl card-hover">
+          <div class="text-sm text-slate-500 mb-2">Framework</div>
+          <div class="font-semibold text-lg">量化投資模型</div>
+          <div class="mt-3 text-sm text-slate-600">把主觀判斷拆成規則、訊號與驗證機制。</div>
+        </div>
+
+        <div class="glass p-6 rounded-3xl card-hover">
+          <div class="text-sm text-slate-500 mb-2">Strategy</div>
+          <div class="font-semibold text-lg">數據驅動決策</div>
+          <div class="mt-3 text-sm text-slate-600">讓決策更穩、更透明，也更容易被複製。</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CORE PRODUCTS -->
+  <section id="core-products" class="py-20 px-6 max-w-6xl mx-auto reveal">
+    <h2 class="text-2xl md:text-3xl font-bold text-primary mb-4">核心產品與技術解決方案</h2>
+    <p class="text-slate-600 mb-8 max-w-2xl">我們將可落地的技術與產品化服務呈現在這裡，歡迎點擊了解更多。</p>
+
+    <div class="grid md:grid-cols-3 gap-6">
+      <a href="https://courses.taiwanmds.com/product/information?p=02c0c7b9ec7b11f0b3480242ac110002" target="_blank" rel="noopener noreferrer" class="glass p-6 rounded-3xl card-hover block hover:shadow-lg">
+        <div class="w-12 h-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center mb-4">
+          <i class="fa-solid fa-chart-line"></i>
+        </div>
+        <h3 class="font-bold mb-2 text-lg">📊 Securities Picking：財務數據分析擇股</h3>
+        <p class="text-sm text-gray-600">💡 訂閱Vibe Coding行銷數據分析學習圈，跟著我們一同走入行銷數據分析與vibe coding自動化的世界 📈</p>
+      </a>
+
+      <a href="https://judgai.com/" target="_blank" rel="noopener noreferrer" class="glass p-6 rounded-3xl card-hover block hover:shadow-lg">
+        <div class="w-12 h-12 rounded-2xl bg-secondary/10 text-secondary flex items-center justify-center mb-4">
+          <i class="fa-solid fa-robot"></i>
+        </div>
+        <h3 class="font-bold mb-2 text-lg">🤖 保險機器人：當經驗成為奇點</h3>
+        <p class="text-sm text-gray-600">⚖️ 從經驗、法條到正確說明，奇點讓每位保險專業者擁有一位懂法的科技夥伴。 🛡️</p>
+      </a>
+
+      <a href="https://judgai.com/saymind" target="_blank" rel="noopener noreferrer" class="glass p-6 rounded-3xl card-hover block hover:shadow-lg">
+        <div class="w-12 h-12 rounded-2xl bg-accent/10 text-accent flex items-center justify-center mb-4">
+          <i class="fa-solid fa-microphone"></i>
+        </div>
+        <h3 class="font-bold mb-2 text-lg">🎤 SayMind：一站式語音轉錄與 AI 筆記</h3>
+        <p class="text-sm text-gray-600">🧠 使用 LangChain 搭建的 RAG 系統，可上傳 PDF 並進行精準問答。 ✨</p>
+      </a>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <!-- DEPENDENCIES -->
+  <section id="dependencies" class="py-12 px-6 max-w-6xl mx-auto reveal">
+    <h3 class="text-lg font-semibold mb-3">外部依賴庫 (Dependencies)</h3>
+    <p class="text-sm text-slate-600 mb-6">連結到我們常用的社群與程式碼倉庫。</p>
+
+    <div class="flex flex-wrap items-center gap-3">
+      <a href="https://aistudy.pse.is/linemdsgroup" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-3 px-4 py-2 rounded-full glass text-sm text-slate-700 hover:bg-slate-50">
+        <i class="fa-brands fa-line text-2xl"></i>
+        <span>LINE</span>
+      </a>
+
+      <a href="https://www.facebook.com/MarketingDataScienceTMR/" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-3 px-4 py-2 rounded-full glass text-sm text-slate-700 hover:bg-slate-50">
+        <i class="fa-brands fa-facebook text-2xl"></i>
+        <span>Facebook</span>
+      </a>
+
+      <a href="#" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-3 px-4 py-2 rounded-full glass text-sm text-slate-700 hover:bg-slate-50">
+        <i class="fa-brands fa-telegram text-2xl"></i>
+        <span>群組 (預留)</span>
+      </a>
+
+      <a href="https://www.linkedin.com/in/howardzhong/" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-3 px-4 py-2 rounded-full glass text-sm text-slate-700 hover:bg-slate-50">
+        <i class="fa-brands fa-linkedin text-2xl"></i>
+        <span>LinkedIn</span>
+      </a>
+
+      <a href="https://github.com/HowardNTUST" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-3 px-4 py-2 rounded-full glass text-sm text-slate-700 hover:bg-slate-50">
+        <i class="fa-brands fa-github text-2xl"></i>
+        <span>GitHub</span>
+      </a>
+    </div>
+  </section>
+
+  <!-- CONTACT FORM -->
+  <section id="contact-form" class="py-12 px-6 max-w-3xl mx-auto text-center reveal">
+    <h3 class="text-xl font-bold text-primary mb-3">填寫需求表單</h3>
+    <p class="text-sm text-slate-600 mb-6">有專案或合作需求，請先填寫表單，我會儘快與你聯繫。</p>
+
+    <a href="https://forms.gle/6KShxJSpkttxhXWW6" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 px-6 py-3 rounded-xl glass border border-primary text-primary font-semibold hover:bg-primary hover:text-white transition">
+      <i class="fa-solid fa-file-lines"></i>
+      填寫需求表單
+    </a>
+  </section>
+
+  <section id="contact" class="py-24 px-6 text-center reveal">
+    <div class="max-w-3xl mx-auto">
+      <h2 class="text-2xl md:text-3xl font-bold text-primary mb-4">聯絡與預約</h2>
+      <p class="text-slate-600 mb-10">如果你正在做 AI、投資系統、企業數據化，這裡就是入口。</p>
+
+      <a href="https://calendar.app.google/Ug25Awrj2vgLPRvv6"
+         target="_blank"
+         rel="noopener noreferrer"
+         class="inline-flex items-center gap-2 px-7 py-3 rounded-xl glass border border-primary text-primary font-semibold hover:bg-primary hover:text-white transition">
+         <i class="fa-regular fa-calendar"></i>
+         預約 1-on-1 諮詢
+      </a>
+
+      <div class="mt-6 text-sm text-gray-500">
+        contact@ryan-ai.com
+      </div>
+    </div>
+  </section>
+
+  <script>
+    // MENU
+    const menuBtn = document.getElementById("menuBtn");
+    const mobileMenu = document.getElementById("mobileMenu");
+
+    menuBtn.addEventListener("click", () => {
+      mobileMenu.classList.toggle("hidden");
+    });
+
+    document.querySelectorAll("#mobileMenu a").forEach(link => {
+      link.addEventListener("click", () => {
+        mobileMenu.classList.add("hidden");
+      });
+    });
+
+    // TYPEWRITER
+    const text = "Make Security-Investing Data Science Easier!";
+    const typewriterEl = document.getElementById("typewriter");
+    let i = 0;
+
+    function type() {
+      if (i < text.length) {
+        typewriterEl.innerHTML += text.charAt(i);
+        i++;
+        setTimeout(type, 55);
+      }
+    }
+    type();
+
+    // CTA
+    const btn = document.getElementById("ctaBtn");
+    btn.addEventListener("mouseenter", () => {
+      btn.innerText = "Status: Ready to Connect";
+    });
+    btn.addEventListener("mouseleave", () => {
+      btn.innerText = "Start Connection";
+    });
+    btn.addEventListener("click", () => {
+      document.querySelector("#contact").scrollIntoView({ behavior: "smooth" });
+    });
+
+    // SCROLL REVEAL
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (e.isIntersecting) e.target.classList.add("show");
+      });
+    }, { threshold: 0.15 });
+
+    document.querySelectorAll(".reveal").forEach(el => observer.observe(el));
+
+    // ACTIVE NAV
+    const sections = document.querySelectorAll("section[id]");
+    const navLinks = document.querySelectorAll(".nav-link");
+
+    const navObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          navLinks.forEach(link => {
+            link.classList.toggle("active", link.getAttribute("href") === "#" + entry.target.id);
+          });
+        }
+      });
+    }, { threshold: 0.55 });
+
+    sections.forEach(section => navObserver.observe(section));
+
+    // PARTICLE BACKGROUND
+    const canvas = document.getElementById("bgCanvas");
+    const ctx = canvas.getContext("2d");
+    let particles = [];
+    const particleCount = 70;
+
+    function resizeCanvas() {
+      const dpr = window.devicePixelRatio || 1;
+      const width = window.innerWidth;
+      const height = window.innerHeight;
+
+      canvas.width = width * dpr;
+      canvas.height = height * dpr;
+      canvas.style.width = width + "px";
+      canvas.style.height = height + "px";
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+      particles = Array.from({ length: particleCount }, () => ({
+        x: Math.random() * width,
+        y: Math.random() * height,
+        vx: (Math.random() - 0.5) * 0.35,
+        vy: (Math.random() - 0.5) * 0.35
+      }));
+    }
+
+    window.addEventListener("resize", resizeCanvas);
+    resizeCanvas();
+
+    function animate() {
+      const width = window.innerWidth;
+      const height = window.innerHeight;
+
+      ctx.clearRect(0, 0, width, height);
+
+      particles.forEach(p => {
+        p.x += p.vx;
+        p.y += p.vy;
+
+        if (p.x < 0 || p.x > width) p.vx *= -1;
+        if (p.y < 0 || p.y > height) p.vy *= -1;
+
+        ctx.fillStyle = "rgba(0,159,219,0.18)";
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, 2, 0, Math.PI * 2);
+        ctx.fill();
+      });
+
+      requestAnimationFrame(animate);
+    }
+    animate();
+  </script>
+</body>
+</html>
